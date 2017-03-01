@@ -8,13 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		28F1B0C56F4D0339B81439B9 /* UIImageView+SwiftyImageLoading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1BCC19D91F917AA457BB8 /* UIImageView+SwiftyImageLoading.swift */; };
-		28F1B6850BF85271EFFCD043 /* MKAnnotationViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1B4BC047CC8891C514D5C /* MKAnnotationViewExtensions.swift */; };
-		28F1B7CA74180A7F3A78F861 /* UIImageViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1B6297D87C3975DC9438E /* UIImageViewExtensions.swift */; };
 		28F1B917CCDC6C0DA550B64B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1B2897D447B37EC190656 /* Constants.swift */; };
 		28F1B953DA75D4C3B240EBFE /* SwiftyImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1B43E51EF6F3F7FB40B2E /* SwiftyImageCacheManager.swift */; };
-		28F1B9C1894367CFC4BBF3BD /* UIButtonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1BCC7D448EEDC099683C4 /* UIButtonExtensions.swift */; };
-		28F1BA85243FE97E452746C9 /* WKInterfaceImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1BA957B020E8A410B656D /* WKInterfaceImageExtensions.swift */; };
-		28F1BBEABC0F8EA2C6DB1F30 /* KFImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F1B6524459CA713141A9C3 /* KFImageCacheManager.swift */; };
 		648F318C1D98C4360087DB97 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31801D98C4360087DB97 /* AppDelegate.swift */; };
 		648F318D1D98C4360087DB97 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 648F31821D98C4360087DB97 /* Images.xcassets */; };
 		648F31901D98C4360087DB97 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31881D98C4360087DB97 /* MainViewController.swift */; };
@@ -305,11 +300,6 @@
 				648F31911D98C4360087DB97 /* ButtonImageTableViewCell.swift in Sources */,
 				648F31901D98C4360087DB97 /* MainViewController.swift in Sources */,
 				28F1B917CCDC6C0DA550B64B /* Constants.swift in Sources */,
-				28F1B9C1894367CFC4BBF3BD /* UIButtonExtensions.swift in Sources */,
-				28F1BBEABC0F8EA2C6DB1F30 /* KFImageCacheManager.swift in Sources */,
-				28F1B7CA74180A7F3A78F861 /* UIImageViewExtensions.swift in Sources */,
-				28F1B6850BF85271EFFCD043 /* MKAnnotationViewExtensions.swift in Sources */,
-				28F1BA85243FE97E452746C9 /* WKInterfaceImageExtensions.swift in Sources */,
 				28F1B953DA75D4C3B240EBFE /* SwiftyImageCacheManager.swift in Sources */,
 				28F1B0C56F4D0339B81439B9 /* UIImageView+SwiftyImageLoading.swift in Sources */,
 			);

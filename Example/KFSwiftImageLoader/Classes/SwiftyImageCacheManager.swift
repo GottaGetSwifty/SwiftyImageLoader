@@ -79,6 +79,7 @@ fileprivate class SwiftyImageLoaderCachedImage: Hashable {
         self.image = image
         self.imageURL = url
         self.saveState = saveState
+        self.observers = observers
     }
 
     fileprivate func updateObserversIfComplete() {
@@ -145,6 +146,7 @@ fileprivate class SwiftyImageLoaderCachedImage: Hashable {
             return false
         }
         observers.append(newObserver)
+        return true
     }
 
     static func ==(leftItem: SwiftyImageLoaderCachedImage, rightItem: SwiftyImageLoaderCachedImage) -> Bool {
@@ -217,18 +219,29 @@ final public class SwiftyImageCacheManager {
         }
     }
 
-	private var observer: Any
+	private var observer: Any? = nil
     fileprivate init() {
         // Initialize the disk cache capacity to 50 MB.
         let diskURLCache = URLCache(memoryCapacity: 0, diskCapacity: 50 * 1024 * 1024, diskPath: nil)
         URLCache.shared = diskURLCache
 
-        observer = NotificationCenter.default.addObserver(forName: .UIApplicationDidReceiveMemoryWarning, object: nil, queue: .main) { _ in
-            self.cachedImages.removeAll()
+        observer = NotificationCenter.default.addObserver(forName: .UIApplicationDidReceiveMemoryWarning, object: nil, queue: .main) {[weak self] _ in
+			//TODO: This should probably be changed to only remove images are aren't currently downloading.
+            self?.cachedImages.removeAll()
         }
     }
     deinit {
+		guard let observer = observer else {
+			return
+		}
         NotificationCenter.default.removeObserver(observer)
+    }
+
+    func makeUrlRequest(with url: URL) -> URLRequest {
+
+        var request = URLRequest(url: url, cachePolicy: session.configuration.requestCachePolicy, timeoutInterval: session.configuration.timeoutIntervalForRequest)
+        request.addValue("image/*", forHTTPHeaderField: "Accept")
+        return request
     }
 
     // MARK: - Image Cache Subscripting
@@ -289,7 +302,10 @@ final public class SwiftyImageCacheManager {
 
 
         let dataTask = session.dataTask(with: urlRequest) { [weak self] taskData, taskResponse, taskError in
-
+            guard let strongSelf = self else {
+                assertionFailure("data task no longer has a reference to self. it done broked.")
+                return
+            }
             guard let currentCachedImage = self?.cachedImages.first(where: { $0.imageURL == requestURL}) else {
                 assertionFailure("Data task returned with no associated cached image. This shouldn't happen")
                 return
@@ -303,154 +319,149 @@ final public class SwiftyImageCacheManager {
                 return
             }
 
-            DispatchQueue.main.async {
-                if initialIndexIdentifier == self.indexPathIdentifier {
-                    UIView.transition(with: self, duration: fadeAnimationDuration, options: .transitionCrossDissolve, animations: {
-                        self.image = image
-                    })
-                }
+            strongSelf.cacheImageIfNecessary(for: urlRequest, with: data, and: response)
 
-                cacheManager[urlAbsoluteString] = image
-
-                let responseDataIsCacheable = cacheManager.diskCacheMaxAge > 0 &&
-                        Double(data.count) <= 0.05 * Double(sharedURLCache.diskCapacity) &&
-                        (cacheManager.session.configuration.requestCachePolicy == .returnCacheDataElseLoad ||
-                                cacheManager.session.configuration.requestCachePolicy == .returnCacheDataDontLoad) &&
-                        (request.cachePolicy == .returnCacheDataElseLoad ||
-                                request.cachePolicy == .returnCacheDataDontLoad)
-
-                if let httpResponse = response as? HTTPURLResponse, let url = httpResponse.url, responseDataIsCacheable {
-                    if var allHeaderFields = httpResponse.allHeaderFields as? [String: String] {
-                        allHeaderFields["Cache-Control"] = "max-age=\(cacheManager.diskCacheMaxAge)"
-                        if let cacheControlResponse = HTTPURLResponse(url: url, statusCode: httpResponse.statusCode, httpVersion: "HTTP/1.1", headerFields: allHeaderFields) {
-                            let cachedResponse = CachedURLResponse(response: cacheControlResponse, data: data, userInfo: ["creationTimestamp": Date.timeIntervalSinceReferenceDate], storagePolicy: .allowed)
-                            sharedURLCache.storeCachedResponse(cachedResponse, for: request)
-                        }
-                    }
-                }
-
-                self.completionHolder.completion?(true, nil)
-            }
-
-
-            dataTask.resume()
+            //this should take care of notifying all the observers
+            currentCachedImage.image = image
         }
+
+        dataTask.resume()
+    }
+
+    private func cacheImageIfNecessary(for urlRequest: URLRequest, with data: Data, and response: URLResponse) {
+
+        let cachePolicy = session.configuration.requestCachePolicy
+        let responseDataIsCacheable = diskCacheMaxAge > 0 && Double(data.count) <= 0.05 * Double(sharedURLCache.diskCapacity) &&
+                (cachePolicy == .returnCacheDataElseLoad || cachePolicy == .returnCacheDataDontLoad) &&
+                (urlRequest.cachePolicy == .returnCacheDataElseLoad ||  urlRequest.cachePolicy == .returnCacheDataDontLoad)
+
+        // Cache the data if we need to
+        guard let httpResponse = response as? HTTPURLResponse, let url = httpResponse.url, responseDataIsCacheable, var allHeaderFields = httpResponse.allHeaderFields as? [String: String]  else {
+            return
+        }
+        allHeaderFields["Cache-Control"] = "max-age=\(diskCacheMaxAge)"
+
+        guard let cacheControlResponse = HTTPURLResponse(url: url, statusCode: httpResponse.statusCode, httpVersion: "HTTP/1.1", headerFields: allHeaderFields) else {
+            return
+        }
+        let cachedResponse = CachedURLResponse(response: cacheControlResponse, data: data, userInfo: ["creationTimestamp": Date.timeIntervalSinceReferenceDate], storagePolicy: .allowed)
+        sharedURLCache.storeCachedResponse(cachedResponse, for: urlRequest)
     }
 
     
     // MARK: - Image Cache Methods
-    internal func getImageCacheEntryForKey(_ key: String) -> [String: AnyObject] {
-        if let imageCacheEntry = self.imageCache[key] {
-            return imageCacheEntry
-        }
-        else {
-            let imageCacheEntry: [String: AnyObject] = [ImageCacheKeys.isDownloading: false as AnyObject, ImageCacheKeys.observerMapping: [NSObject: Int]() as AnyObject]
-            self.imageCache[key] = imageCacheEntry
-            
-            return imageCacheEntry
-        }
-    }
-    
-    internal func setImageCacheEntry(_ imageCacheEntry: [String: AnyObject], forKey key: String) {
-        self.imageCache[key] = imageCacheEntry
-    }
-    
-    internal func isDownloadingFromURL(_ urlString: String) -> Bool {
-        let isDownloading = imageCacheEntryForKey(urlString)[ImageCacheKeys.isDownloading] as? Bool
-        
-        return isDownloading ?? false
-    }
-    
-    internal func setIsDownloadingFromURL(_ isDownloading: Bool, forURLString urlString: String) {
-        var imageCacheEntry = imageCacheEntryForKey(urlString)
-        imageCacheEntry[ImageCacheKeys.isDownloading] = isDownloading as AnyObject?
-        setImageCacheEntry(imageCacheEntry, forKey: urlString)
-    }
-    
-    internal func addImageCacheObserver(_ observer: NSObject, withInitialIndexIdentifier initialIndexIdentifier: Int, forKey key: String) {
-        var imageCacheEntry = imageCacheEntryForKey(key)
-        if var observerMapping = imageCacheEntry[ImageCacheKeys.observerMapping] as? [NSObject: Int] {
-            observerMapping[observer] = initialIndexIdentifier
-            imageCacheEntry[ImageCacheKeys.observerMapping] = observerMapping as AnyObject?
-            setImageCacheEntry(imageCacheEntry, forKey: key)
-        }
-    }
-    
-    internal func removeImageCacheObserversForKey(_ key: String) {
-        var imageCacheEntry = imageCacheEntryForKey(key)
-        if var observerMapping = imageCacheEntry[ImageCacheKeys.observerMapping] as? [NSObject: Int] {
-            observerMapping.removeAll(keepingCapacity: false)
-            imageCacheEntry[ImageCacheKeys.observerMapping] = observerMapping as AnyObject?
-            setImageCacheEntry(imageCacheEntry, forKey: key)
-        }
-    }
-    
-    // MARK: - Observer Methods
-    internal func loadObserver(_ imageView: UIImageView, image: UIImage, initialIndexIdentifier: Int) {
-        if initialIndexIdentifier == imageView.indexPathIdentifier {
-            DispatchQueue.main.async {
-                UIView.transition(with: imageView,
-                              duration: self.fadeAnimationDuration,
-                               options: .transitionCrossDissolve,
-                            animations: {
-                    imageView.image = image
-                })
-                
-                imageView.completionHolder.completion?(true, nil)
-            }
-        }
-        else {
-            imageView.completionHolder.completion?(false, nil)
-        }
-    }
-    
-    internal func loadObserver(_ button: UIButton, image: UIImage, initialIndexIdentifier: Int) {
-        if initialIndexIdentifier == button.indexPathIdentifier {
-            DispatchQueue.main.async {
-                UIView.transition(with: button,
-                              duration: self.fadeAnimationDuration,
-                               options: .transitionCrossDissolve,
-                            animations: {
-                    if button.isBackgroundImage == true {
-                        button.setBackgroundImage(image, for: button.controlStateHolder.controlState)
-                    }
-                    else {
-                        button.setImage(image, for: button.controlStateHolder.controlState)
-                    }
-                })
-                
-                button.completionHolder.completion?(true, nil)
-            }
-        }
-        else {
-            button.completionHolder.completion?(false, nil)
-        }
-    }
-    
-    internal func loadObserver(_ annotationView: MKAnnotationView, image: UIImage) {
-        DispatchQueue.main.async {
-            UIView.transition(with: annotationView,
-                          duration: self.fadeAnimationDuration,
-                           options: .transitionCrossDissolve,
-                        animations: {
-                annotationView.image = image
-            })
-            
-            annotationView.completionHolder.completion?(true, nil)
-        }
-    }
-    
-    internal func loadObserver(_ interfaceImage: WKInterfaceImage, image: UIImage, key: String) {
-        DispatchQueue.main.async {
-            // If there's already a cached image on the Apple Watch, simply set the image directly.
-            if WKInterfaceDevice.current().cachedImages[key] != nil {
-                interfaceImage.setImageNamed(key)
-            }
-            else {
-                interfaceImage.setImageData(UIImagePNGRepresentation(image))
-            }
-            
-            interfaceImage.completionHolder.completion?(true, nil)
-        }
-    }
+//    internal func getImageCacheEntryForKey(_ key: String) -> [String: AnyObject] {
+//        if let imageCacheEntry = self.imageCache[key] {
+//            return imageCacheEntry
+//        }
+//        else {
+//            let imageCacheEntry: [String: AnyObject] = [ImageCacheKeys.isDownloading: false as AnyObject, ImageCacheKeys.observerMapping: [NSObject: Int]() as AnyObject]
+//            self.imageCache[key] = imageCacheEntry
+//
+//            return imageCacheEntry
+//        }
+//    }
+//
+//    internal func setImageCacheEntry(_ imageCacheEntry: [String: AnyObject], forKey key: String) {
+//        self.imageCache[key] = imageCacheEntry
+//    }
+//
+//    internal func isDownloadingFromURL(_ urlString: String) -> Bool {
+//        let isDownloading = imageCacheEntryForKey(urlString)[ImageCacheKeys.isDownloading] as? Bool
+//
+//        return isDownloading ?? false
+//    }
+//
+//    internal func setIsDownloadingFromURL(_ isDownloading: Bool, forURLString urlString: String) {
+//        var imageCacheEntry = imageCacheEntryForKey(urlString)
+//        imageCacheEntry[ImageCacheKeys.isDownloading] = isDownloading as AnyObject?
+//        setImageCacheEntry(imageCacheEntry, forKey: urlString)
+//    }
+//
+//    internal func addImageCacheObserver(_ observer: NSObject, withInitialIndexIdentifier initialIndexIdentifier: Int, forKey key: String) {
+//        var imageCacheEntry = imageCacheEntryForKey(key)
+//        if var observerMapping = imageCacheEntry[ImageCacheKeys.observerMapping] as? [NSObject: Int] {
+//            observerMapping[observer] = initialIndexIdentifier
+//            imageCacheEntry[ImageCacheKeys.observerMapping] = observerMapping as AnyObject?
+//            setImageCacheEntry(imageCacheEntry, forKey: key)
+//        }
+//    }
+//
+//    internal func removeImageCacheObserversForKey(_ key: String) {
+//        var imageCacheEntry = imageCacheEntryForKey(key)
+//        if var observerMapping = imageCacheEntry[ImageCacheKeys.observerMapping] as? [NSObject: Int] {
+//            observerMapping.removeAll(keepingCapacity: false)
+//            imageCacheEntry[ImageCacheKeys.observerMapping] = observerMapping as AnyObject?
+//            setImageCacheEntry(imageCacheEntry, forKey: key)
+//        }
+//    }
+//
+//    // MARK: - Observer Methods
+//    internal func loadObserver(_ imageView: UIImageView, image: UIImage, initialIndexIdentifier: Int) {
+//        if initialIndexIdentifier == imageView.indexPathIdentifier {
+//            DispatchQueue.main.async {
+//                UIView.transition(with: imageView,
+//                              duration: self.fadeAnimationDuration,
+//                               options: .transitionCrossDissolve,
+//                            animations: {
+//                    imageView.image = image
+//                })
+//
+//                imageView.completionHolder.completion?(true, nil)
+//            }
+//        }
+//        else {
+//            imageView.completionHolder.completion?(false, nil)
+//        }
+//    }
+//
+//    internal func loadObserver(_ button: UIButton, image: UIImage, initialIndexIdentifier: Int) {
+//        if initialIndexIdentifier == button.indexPathIdentifier {
+//            DispatchQueue.main.async {
+//                UIView.transition(with: button,
+//                              duration: self.fadeAnimationDuration,
+//                               options: .transitionCrossDissolve,
+//                            animations: {
+//                    if button.isBackgroundImage == true {
+//                        button.setBackgroundImage(image, for: button.controlStateHolder.controlState)
+//                    }
+//                    else {
+//                        button.setImage(image, for: button.controlStateHolder.controlState)
+//                    }
+//                })
+//
+//                button.completionHolder.completion?(true, nil)
+//            }
+//        }
+//        else {
+//            button.completionHolder.completion?(false, nil)
+//        }
+//    }
+//
+//    internal func loadObserver(_ annotationView: MKAnnotationView, image: UIImage) {
+//        DispatchQueue.main.async {
+//            UIView.transition(with: annotationView,
+//                          duration: self.fadeAnimationDuration,
+//                           options: .transitionCrossDissolve,
+//                        animations: {
+//                annotationView.image = image
+//            })
+//
+//            annotationView.completionHolder.completion?(true, nil)
+//        }
+//    }
+//
+//    internal func loadObserver(_ interfaceImage: WKInterfaceImage, image: UIImage, key: String) {
+//        DispatchQueue.main.async {
+//            // If there's already a cached image on the Apple Watch, simply set the image directly.
+//            if WKInterfaceDevice.current().cachedImages[key] != nil {
+//                interfaceImage.setImageNamed(key)
+//            }
+//            else {
+//                interfaceImage.setImageData(UIImagePNGRepresentation(image))
+//            }
+//
+//            interfaceImage.completionHolder.completion?(true, nil)
+//        }
+//    }
 }

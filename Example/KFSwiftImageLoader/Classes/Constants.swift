@@ -12,19 +12,19 @@ public enum ImageLoadingError: Error {
 }
 public typealias ImageCompletion = (_ finished: Bool, _ error: Error?) -> ()
 // MARK: - CompletionHolder Class
-final internal class CompletionHolder {
-    var completion: (KFCompletion)?
-    
-    init(completion: KFCompletion?) {
-        self.completion = completion
-    }
-}
+//final internal class CompletionHolder {
+//    var completion: (KFCompletion)?
+//    
+//    init(completion: KFCompletion?) {
+//        self.completion = completion
+//    }
+//}
 
 // MARK: - ControlStateHolder Class
-final internal class ControlStateHolder {
-    var controlState: UIControlState
-    
-    init(state: UIControlState) {
-        self.controlState = state
-    }
-}
+//final internal class ControlStateHolder {
+//    var controlState: UIControlState
+//    
+//    init(state: UIControlState) {
+//        self.controlState = state
+//    }
+//}
