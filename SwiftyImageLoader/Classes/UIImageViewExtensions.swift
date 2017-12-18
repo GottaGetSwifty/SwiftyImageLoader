@@ -5,30 +5,10 @@
 
 import UIKit
 
-// MARK: - UIImageView Associated Object Keys
-private var indexPathIdentifierAssociationKey: UInt8 = 0
-private var completionHolderAssociationKey: UInt8 = 0
-
-// MARK: - UIImageView Extension
+protocol CacheItemLoader: Callback {
+    func load(from url: URL, placeHolder: T?)
+}
 public extension UIImageView {
-    // MARK: - Associated Objects
-    final internal var indexPathIdentifier: Int! {
-        get {
-            return objc_getAssociatedObject(self, &indexPathIdentifierAssociationKey) as? Int
-        }
-        set {
-            objc_setAssociatedObject(self, &indexPathIdentifierAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-    
-    final internal var completionHolder: CompletionHolder! {
-        get {
-            return objc_getAssociatedObject(self, &completionHolderAssociationKey) as? CompletionHolder
-        }
-        set {
-            objc_setAssociatedObject(self, &completionHolderAssociationKey, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
     
     // MARK: - Image Loading Methods
     /**

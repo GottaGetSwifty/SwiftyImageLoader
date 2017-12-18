@@ -7,15 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		924241ED1FE769BA00D77BB7 /* DownloadInfoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924241EC1FE769BA00D77BB7 /* DownloadInfoManager.swift */; };
+		924241EF1FE769FA00D77BB7 /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924241EE1FE769FA00D77BB7 /* CacheManager.swift */; };
 		92A0E76C1FE72F0B00045957 /* SwiftyImageLoader.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A0E7621FE72F0B00045957 /* SwiftyImageLoader.framework */; };
 		92A0E7711FE72F0B00045957 /* SwiftyImageLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7701FE72F0B00045957 /* SwiftyImageLoaderTests.swift */; };
 		92A0E7731FE72F0B00045957 /* SwiftyImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 92A0E7651FE72F0B00045957 /* SwiftyImageLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		92A0E7891FE72FEA00045957 /* UIImageViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7831FE72FEA00045957 /* UIImageViewExtensions.swift */; };
 		92A0E78A1FE72FEA00045957 /* UIButtonExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7841FE72FEA00045957 /* UIButtonExtensions.swift */; };
-		92A0E78B1FE72FEA00045957 /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7851FE72FEA00045957 /* ImageCacheManager.swift */; };
 		92A0E78C1FE72FEA00045957 /* MKAnnotationViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7861FE72FEA00045957 /* MKAnnotationViewExtensions.swift */; };
 		92A0E78D1FE72FEA00045957 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7871FE72FEA00045957 /* Constants.swift */; };
 		92A0E78E1FE72FEA00045957 /* WKInterfaceImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A0E7881FE72FEA00045957 /* WKInterfaceImageExtensions.swift */; };
+		92AB874F1FE773F2005881FF /* ItemDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB874E1FE773F2005881FF /* ItemDownloader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +31,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		924241EC1FE769BA00D77BB7 /* DownloadInfoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadInfoManager.swift; sourceTree = "<group>"; };
+		924241EE1FE769FA00D77BB7 /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		92A0E7621FE72F0B00045957 /* SwiftyImageLoader.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftyImageLoader.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92A0E7651FE72F0B00045957 /* SwiftyImageLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftyImageLoader.h; sourceTree = "<group>"; };
 		92A0E7661FE72F0B00045957 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -37,10 +41,10 @@
 		92A0E7721FE72F0B00045957 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		92A0E7831FE72FEA00045957 /* UIImageViewExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIImageViewExtensions.swift; path = ../../../../SwiftyImageLoader/Classes/UIImageViewExtensions.swift; sourceTree = "<group>"; };
 		92A0E7841FE72FEA00045957 /* UIButtonExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIButtonExtensions.swift; path = ../../../../SwiftyImageLoader/Classes/UIButtonExtensions.swift; sourceTree = "<group>"; };
-		92A0E7851FE72FEA00045957 /* ImageCacheManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ImageCacheManager.swift; path = ../../../../SwiftyImageLoader/Classes/ImageCacheManager.swift; sourceTree = "<group>"; };
 		92A0E7861FE72FEA00045957 /* MKAnnotationViewExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MKAnnotationViewExtensions.swift; path = ../../../../SwiftyImageLoader/Classes/MKAnnotationViewExtensions.swift; sourceTree = "<group>"; };
 		92A0E7871FE72FEA00045957 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = ../../../../SwiftyImageLoader/Classes/Constants.swift; sourceTree = "<group>"; };
 		92A0E7881FE72FEA00045957 /* WKInterfaceImageExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WKInterfaceImageExtensions.swift; path = ../../../../SwiftyImageLoader/Classes/WKInterfaceImageExtensions.swift; sourceTree = "<group>"; };
+		92AB874E1FE773F2005881FF /* ItemDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDownloader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,11 +107,13 @@
 			isa = PBXGroup;
 			children = (
 				92A0E7871FE72FEA00045957 /* Constants.swift */,
-				92A0E7851FE72FEA00045957 /* ImageCacheManager.swift */,
 				92A0E7861FE72FEA00045957 /* MKAnnotationViewExtensions.swift */,
 				92A0E7841FE72FEA00045957 /* UIButtonExtensions.swift */,
 				92A0E7831FE72FEA00045957 /* UIImageViewExtensions.swift */,
 				92A0E7881FE72FEA00045957 /* WKInterfaceImageExtensions.swift */,
+				924241EC1FE769BA00D77BB7 /* DownloadInfoManager.swift */,
+				924241EE1FE769FA00D77BB7 /* CacheManager.swift */,
+				92AB874E1FE773F2005881FF /* ItemDownloader.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -227,8 +233,10 @@
 				92A0E78D1FE72FEA00045957 /* Constants.swift in Sources */,
 				92A0E7891FE72FEA00045957 /* UIImageViewExtensions.swift in Sources */,
 				92A0E78A1FE72FEA00045957 /* UIButtonExtensions.swift in Sources */,
+				924241EF1FE769FA00D77BB7 /* CacheManager.swift in Sources */,
+				92AB874F1FE773F2005881FF /* ItemDownloader.swift in Sources */,
 				92A0E78C1FE72FEA00045957 /* MKAnnotationViewExtensions.swift in Sources */,
-				92A0E78B1FE72FEA00045957 /* ImageCacheManager.swift in Sources */,
+				924241ED1FE769BA00D77BB7 /* DownloadInfoManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
