@@ -1,6 +1,6 @@
-# KFSwiftImageLoader
+# SwiftyImageLoader
 
-KFSwiftImageLoader is an extremely high-performance, lightweight, and energy-efficient pure Swift async web image loader with memory and disk caching for iOS and  Watch.
+SwiftyImageLoader is an extremely high-performance, lightweight, and energy-efficient pure Swift async web image loader with memory and disk caching for iOS and  Watch.
 
 This is the world's first  Watch-optimized async image loader with WKInterfaceImage extensions and intelligent automatic cache handling via WKInterfaceDevice.
 
@@ -17,12 +17,12 @@ Please see the "watchos_3" branch for progress on the migration work being done.
 * Energy efficiency by sending only one HTTP/HTTPS request for image downloads from multiple sources that reference the same URL string, registering them as observers for the request.
 * Maximum peformance by utilizing the latest and greatest of modern technologies such as Swift 3.0, URLSession, and GCD.
 
-## KFSwiftImageLoader Requirements
+## SwiftyImageLoader Requirements
 * Xcode 8.0+
 * iOS 9.0+
 
 ## CocoaPods
-To ensure you stay up-to-date with the latest version of KFSwiftImageLoader, it is recommended that you use CocoaPods.
+To ensure you stay up-to-date with the latest version of SwiftyImageLoader, it is recommended that you use CocoaPods.
 
 Optimized for CocoaPods 1.0+, so you will need to run the following command first:
 ``` bash
@@ -34,12 +34,12 @@ Add the following to your Podfile
 source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '9.0'
 use_frameworks!
-pod 'KFSwiftImageLoader', '~> 3.0'
+pod 'SwiftyImageLoader', '~> 1.0'
 ```
 
-You will need to import KFSwiftImageLoader everywhere you wish to use it:
+You will need to import SwiftyImageLoader everywhere you wish to use it:
 ``` swift
-import KFSwiftImageLoader
+import SwiftyImageLoader
 ```
 
 ## Example Usage
@@ -89,14 +89,14 @@ The main difference with the UIImageView extension is the parameter "shouldUseDe
 
 "shouldUseDeviceCache" is a Bool indicating whether or not to use the  Watch's device cache for dramatically improved performance. This should only be considered for images that are likely to be loaded more than once throughout the lifetime of the app.
 
-The magic here is that KFSwiftImageLoader will automatically and intelligently manage the  Watch's device cache. Should the image data be larger than the cache's size (5 MB), KFSwiftImageLoader will fallback to transmitting the data from the iPhone app's cache, or downloading the image and transmitting the downloaded data, depending on what's available.
+The magic here is that SwiftyImageLoader will automatically and intelligently manage the  Watch's device cache. Should the image data be larger than the cache's size (5 MB), SwiftyImageLoader will fallback to transmitting the data from the iPhone app's cache, or downloading the image and transmitting the downloaded data, depending on what's available.
 
 ### UIButton
 ``` swift
 button.loadImage(urlString: urlString)
 ```
 
-Again, KFSwiftImageLoader makes it very easy to load images.
+Again, SwiftyImageLoader makes it very easy to load images.
 In this case, the button uses mostly the same method signature as UIImageView, but it includes two more optional parameters: "isBackgroundImage" and "forState".
 
 ``` swift
@@ -117,36 +117,31 @@ annotationView.loadImage(urlString: string)
 
 The methods in the MKAnnotationView extension are exactly the same as those in the UIImageView extension.
 
-### KFImageCacheManager
+### SwiftyImageLoader
 ``` swift
 // Disable the fade animation.
 // The default value is 0.1.
-KFImageCacheManager.sharedInstance.fadeAnimationDuration = 0.0
+SwiftyImageLoader.sharedInstance.fadeAnimationDuration = 0.0
 
 // Set a custom timeout interval for the image requests.
 // The default value is 60.0.
-KFImageCacheManager.sharedInstance.timeoutIntervalForRequest = 15.0
+SwiftyImageLoader.sharedInstance.timeoutIntervalForRequest = 15.0
 
 // Set a custom request cache policy for the image requests as well as the session's configuration.
 // The default value is .returnCacheDataElseLoad.
-KFImageCacheManager.sharedInstance.requestCachePolicy = .useProtocolCachePolicy
+SwiftyImageLoader.sharedInstance.requestCachePolicy = .useProtocolCachePolicy
 
 // Disable file system caching by adjusting the max age of the disk cache and the request cache policy.
 // The default value is 60 * 60 * 24 * 7 = 604800 seconds (1 week).
-KFImageCacheManager.sharedInstance.diskCacheMaxAge = 0
-KFImageCacheManager.sharedInstance.requestCachePolicy = .reloadIgnoringLocalCacheData
+SwiftyImageLoader.sharedInstance.diskCacheMaxAge = 0
+SwiftyImageLoader.sharedInstance.requestCachePolicy = .reloadIgnoringLocalCacheData
 ```
 
 ## Sample App
-Please download the sample app "SwiftImageLoader" in this repository for a clear idea of how to use KFSwiftImageLoader to load images for iOS and  Watch.
-
-## Contact Information
-Kiavash Faisali
-- https://github.com/kiavashfaisali
-- kiavashfaisali@outlook.com
+Please download the sample app "SwiftImageLoader" in this repository for a clear idea of how to use SwiftyImageLoader to load images for iOS and  Watch.
 
 ## License
-KFSwiftImageLoader is available under the MIT license.
+SwiftyImageLoader is available under the MIT license.
 
 Copyright (c) 2016 Kiavash Faisali
 
